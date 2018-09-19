@@ -136,7 +136,7 @@ $ tree -d
 
 ## Getting Started
 
-```
+```console
 python train.py --device 0 --epoch 100 --destination logs
 ```
 
@@ -187,4 +187,12 @@ This should be get:
 ```
 top1 accuracy 0.6154455445544554
 top5 accuracy 0.844039603960396
+```
+
+# Using Web Camera
+
+Wanna try demo ? You can use video.py:
+
+```
+python video.py logs/model_epoch_100.npz
 ```
