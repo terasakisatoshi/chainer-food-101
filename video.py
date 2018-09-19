@@ -1,3 +1,4 @@
+import argparse
 import os
 import time
 
@@ -9,19 +10,17 @@ import numpy as np
 
 from network import MobilenetV2
 
-USE_GPU = False
 
-
-def main():
+def video(args):
     classes = np.genfromtxt(os.path.join(
         "food-101", "meta", "classes.txt"), str, delimiter="\n")
     multiplier = 1.0
     input_size = 224
     model = MobilenetV2(num_classes=101, depth_multiplier=multiplier)
     model = L.Classifier(model)
-    chainer.serializers.load_npz('logs/model_epoch_100.npz', model)
+    chainer.serializers.load_npz(args.model_path, model)
 
-    if USE_GPU:
+    if args.device >= 0:
         chainer.cuda.get_device_from_id(0).use()
         model.predictor.to_gpu()
         import cupy as xp
@@ -42,7 +41,7 @@ def main():
             start = time.time()
             h = model.predictor(xp.expand_dims(xp.array(input_image), axis=0))
             prediction = F.softmax(h)
-            if USE_GPU:
+            if args.device >= 0:
                 prediction = xp.asnumpy(prediction[0].data)
             else:
                 prediction = prediction[0].data
@@ -70,5 +69,16 @@ def main():
                 break
 
 
+def parse_argument():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "model_path", type=str, help="path/to/snapshot e.g. pretrained/model_epoch_100.npz")
+    parser.add_argument("--device", type=int, default=-1,
+                        help="specify GPU_ID. If negative, use CPU (default: % (default)s)")
+    args = parser.parse_args()
+    return args
+
+
 if __name__ == '__main__':
-    main()
+    args = parse_argument()
+    video(args)
