@@ -5,7 +5,7 @@ Classify category of food with Chainer based on MobileNetV2
 # How to Train
 ## Prepare Dataset
 
-We've used Food-101 Data Set: [Food-101 -- Mining Discriminative Components with Random Forests](https://www.vision.ee.ethz.ch/datasets_extra/food-101/)
+Download Food-101 Data Set: [Food-101 -- Mining Discriminative Components with Random Forests](https://www.vision.ee.ethz.ch/datasets_extra/food-101/)
 
 ```
 $ git clone git@github.com:terasakisatoshi/chainer-food-101.git
