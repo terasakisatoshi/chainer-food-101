@@ -196,3 +196,5 @@ Wanna try demo ? You can use video.py:
 ```
 python video.py logs/model_epoch_100.npz
 ```
+
+Enjoy!
