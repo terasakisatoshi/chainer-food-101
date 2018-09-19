@@ -8,7 +8,7 @@ Classify category of food with Chainer based on MobileNetV2
 We've used Food-101 Data Set: [Food-101 -- Mining Discriminative Components with Random Forests](https://www.vision.ee.ethz.ch/datasets_extra/food-101/)
 
 ```
-$ git clone git@github.com:terasakisatoshi/chainer-food101.git
+$ git clone git@github.com:terasakisatoshi/chainer-food-101.git
 $ cd chainer-food101
 $ wget http://data.vision.ee.ethz.ch/cvl/food-101.tar.gz
 $ tar xfvz http://data.vision.ee.ethz.ch/cvl/food-101.tar.gz
@@ -136,7 +136,7 @@ $ tree -d
 
 ## Getting Started
 
-```
+```console
 python train.py --device 0 --epoch 100 --destination logs
 ```
 
@@ -187,4 +187,12 @@ This should be get:
 ```
 top1 accuracy 0.6154455445544554
 top5 accuracy 0.844039603960396
+```
+
+# Using Web Camera
+
+Wanna try demo ? You can use video.py:
+
+```
+python video.py logs/model_epoch_100.npz
 ```
