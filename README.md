@@ -8,7 +8,7 @@ Classify category of food with Chainer based on MobileNetV2
 We've used Food-101 Data Set: [Food-101 -- Mining Discriminative Components with Random Forests](https://www.vision.ee.ethz.ch/datasets_extra/food-101/)
 
 ```
-$ git clone git@github.com:terasakisatoshi/chainer-food101.git
+$ git clone git@github.com:terasakisatoshi/chainer-food-101.git
 $ cd chainer-food101
 $ wget http://data.vision.ee.ethz.ch/cvl/food-101.tar.gz
 $ tar xfvz http://data.vision.ee.ethz.ch/cvl/food-101.tar.gz
