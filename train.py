@@ -43,8 +43,7 @@ def train(args=None):
 
     optimizer = chainer.optimizers.SGD()
     optimizer.setup(model)
-
-    train, test = chainer.datasets.get_mnist()
+    
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, device=args.device)
     trainer = training.Trainer(
