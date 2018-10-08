@@ -90,7 +90,8 @@ class ExpandedConv(chainer.Chain):
 
 class MobilenetV2(chainer.Chain):
 
-    def __init__(self, num_classes, depth_multiplier):
+    def __init__(self, num_classes, **kwargs):
+        depth_multiplier = kwargs["depth_multiplier"]
         super(MobilenetV2, self).__init__()
         d = multiplier(depth_multiplier, divisible_by=8, min_depth=8)
         with self.init_scope():

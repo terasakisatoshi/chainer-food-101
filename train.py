@@ -23,7 +23,8 @@ from chainer.training import extensions
 from chainer.training.triggers import MinValueTrigger
 
 from dataset import FoodDataset
-from network import MobilenetV2
+from networks.mobilenetv2 import MobilenetV2
+from networks.vgg16 import VGG16
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

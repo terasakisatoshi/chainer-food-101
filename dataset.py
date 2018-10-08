@@ -7,7 +7,7 @@ import chainer
 from chainer.datasets import LabeledImageDataset
 from chainer.datasets import TransformDataset
 from chainercv import transforms
-
+from chainer.links.model.vision import vgg
 try:
     import cv2
     ENAVLE_CV2 = True

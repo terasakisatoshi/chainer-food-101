@@ -7,7 +7,7 @@ import chainer.links as L
 import chainer.functions as F
 import numpy as np
 
-from network import MobilenetV2
+from networks.mobilenetv2 import MobilenetV2
 from dataset import FoodDataset
 
 
