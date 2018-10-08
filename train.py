@@ -53,16 +53,21 @@ def train(args=None):
         train_dataset, args.batch_size)
     val_iter = MultiprocessIterator(
         valid_dataset, args.batch_size, repeat=False, shuffle=False)
-
-    model = MobilenetV2(num_classes=101, depth_multiplier=1.0)
+    if args.model_name == 'mv2':
+        model = MobilenetV2(num_classes=101, depth_multiplier=1.0)
+    elif args.model_name == "vgg16":
+        model = VGG16(num_classes=101)
+    else:
+        raise Exceptiopn("illegal model name")
     model = L.Classifier(model)
+
+    optimizer = chainer.optimizers.Adam()
+    optimizer.setup(model)
+
     if args.device >= 0:
         chainer.backends.cuda.get_device_from_id(args.device).use()
         model.to_gpu()
 
-    optimizer = chainer.optimizers.SGD()
-    optimizer.setup(model)
-    
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, device=args.device)
     trainer = training.Trainer(
@@ -100,7 +105,9 @@ def set_random_seed(seed):
 def parse_argument():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=12345)
+    parser.add_argument("--dataset", type=str, default="food-101")
     parser.add_argument("--device", type=int, default=0)
+    parser.add_argument("--model_name", type=str, default="mv2")
     parser.add_argument("--multiplier", type=float, default=1.0)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--destination", type=str, default="logs")
