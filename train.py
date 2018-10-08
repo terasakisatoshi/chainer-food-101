@@ -63,8 +63,10 @@ def train(args=None):
     else:
         raise Exceptiopn("illegal model name")
     model = L.Classifier(model)
-
-    optimizer = chainer.optimizers.Adam()
+    if args.model_name == "mv2":
+        optimizer = chainer.optimizers.SGD(lr=0.005)
+    else:
+        optimizer = chainer.optimizers.Adam()
     optimizer.setup(model)
 
     if args.model_name == "vgg16":
