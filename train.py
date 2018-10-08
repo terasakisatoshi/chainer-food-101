@@ -64,6 +64,9 @@ def train(args=None):
     optimizer = chainer.optimizers.Adam()
     optimizer.setup(model)
 
+    if args.model_name == "vgg16":
+        model.disable_target_layers()
+
     if args.device >= 0:
         chainer.backends.cuda.get_device_from_id(args.device).use()
         model.to_gpu()
