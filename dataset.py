@@ -16,8 +16,6 @@ except ImportError:
 
 import numpy as np
 
-
-CONTRAST_RANGE = np.linspace(0.7, 1.3, 61, endpoint=True)
 logger = logging.getLogger(__name__)
 
 
@@ -26,7 +24,8 @@ BLACKLIST = ["lasagna/3787908",
              "bread_pudding/1375816"]
 
 
-def get_pairs(meta_dir, train=True):
+def get_pairs(dataset_dir, train=True):
+    meta_dir = os.path.join(dataset_dir, "meta")
     classes = np.genfromtxt(os.path.join(
         meta_dir, "classes.txt"), str, delimiter="\n")
     classes = {label: klass for label, klass in enumerate(classes)}
@@ -40,36 +39,47 @@ def get_pairs(meta_dir, train=True):
             if p in BLACKLIST:
                 logger.info("{} is in BLACKLIST".format(p))
                 continue
-            pairs.append(
-                (os.path.join("food-101", "images", p + ".jpg"), label))
+            pairs.append((os.path.join(dataset_dir, "images", p + ".jpg"),
+                          label))
     return pairs
 
 
 class FoodDataset(chainer.dataset.DatasetMixin):
 
-    def __init__(self, train=True):
-        pairs = get_pairs("food-101/meta", train=train)
+    def __init__(self, dataset_dir, model_name, train=True):
+        pairs = get_pairs(dataset_dir, train=train)
         self.base = LabeledImageDataset(pairs)
         self.train = True
         self.pairs = pairs
+        self.model_name = model_name
+        #self.image_cache = [None] * len(self.base)
 
     def __len__(self):
         return len(self.base)
 
     def get_example(self, i):
+        # if self.train and (self.image_cache[i] is None):
+        #    image, label = self.base[i]
+        #    self.image_cache[i] = (transforms.resize(image, (368, 368)), label)
+        # else:
+        #    image, label = self.image_cache[i]
         image, label = self.base[i]
         imgpath = self.base._pairs[i][0]
         image = image.copy()
 
         if self.train:
-            contrast_value = np.random.choice(CONTRAST_RANGE)
+            image = transforms.pca_lighting(image, 76.5)
             image = transforms.random_flip(image, x_random=True, y_random=True)
             image = transforms.random_rotate(image, return_param=False)
-            image = contrast_value * image
             if image.shape[1] >= 224 and image.shape[2] >= 224:
                 image = transforms.random_crop(image, size=(224, 224))
         image = transforms.resize(image, (224, 224))
-
+        if self.model_name == "mv2":
+            image /= 128.
+        elif self.model_name == "vgg16":
+            image = vgg.prepare(image, size=(224, 224))
+        else:
+            raise Exception("illegal model")
         if image.shape[0] == 1:
             """
             REMARK: all images are not color images.

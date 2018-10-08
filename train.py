@@ -42,7 +42,11 @@ def save_args(args):
 
 
 def train(args=None):
-    dataset = FoodDataset(train=True)
+    save_args(args)
+
+    dataset = FoodDataset(dataset_dir=args.dataset,
+                          model_name=args.model_name,
+                          train=True)
     train_dataset, valid_dataset = split_dataset_random(
         dataset, int(0.9 * len(dataset)), seed=args.seed)
     train_iter = MultiprocessIterator(
