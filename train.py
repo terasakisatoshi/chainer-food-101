@@ -1,6 +1,9 @@
 import argparse
+import json
 import logging
 import random
+import os
+
 
 import matplotlib
 matplotlib.use('Agg')  # to prevent software hang
@@ -24,6 +27,17 @@ from network import MobilenetV2
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def save_args(args):
+    if not os.path.exists(args.destination):
+        os.mkdir(args.destination)
+
+    for k, v in vars(args).items():
+        print(k, v)
+
+    with open(os.path.join(args.destination, "args.json"), 'w') as f:
+        json.dump(vars(args), f)
 
 
 def train(args=None):
