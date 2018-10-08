@@ -68,6 +68,8 @@ class FoodDataset(chainer.dataset.DatasetMixin):
         image = image.copy()
 
         if self.train:
+            image = transforms.resize(image,
+                                      (random.choice(range(368, 512)), random.choice(range(368, 512))))
             image = transforms.pca_lighting(image, 76.5)
             image = transforms.random_flip(image, x_random=True, y_random=True)
             image = transforms.random_rotate(image, return_param=False)
