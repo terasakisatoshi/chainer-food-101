@@ -25,6 +25,7 @@ from chainer.training.triggers import MinValueTrigger
 from dataset import FoodDataset
 from networks.mobilenetv2 import MobilenetV2
 from networks.vgg16 import VGG16
+from networks.resnet50 import ResNet50
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -57,6 +58,8 @@ def train(args=None):
         model = MobilenetV2(num_classes=101, depth_multiplier=1.0)
     elif args.model_name == "vgg16":
         model = VGG16(num_classes=101)
+    elif args.model_name == "resnet50":
+        model = ResNet50(num_classes=101)
     else:
         raise Exceptiopn("illegal model name")
     model = L.Classifier(model)
@@ -65,7 +68,9 @@ def train(args=None):
     optimizer.setup(model)
 
     if args.model_name == "vgg16":
-        model.disable_target_layers()
+        model.predictor.disable_target_layers()
+    if args.model_name == "resnet50":
+        model.predictor.disable_target_layers()
 
     if args.device >= 0:
         chainer.backends.cuda.get_device_from_id(args.device).use()

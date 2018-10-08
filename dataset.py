@@ -8,6 +8,7 @@ from chainer.datasets import LabeledImageDataset
 from chainer.datasets import TransformDataset
 from chainercv import transforms
 from chainer.links.model.vision import vgg
+from chainer.links.model.vision import resnet
 try:
     import cv2
     ENAVLE_CV2 = True
@@ -52,21 +53,14 @@ class FoodDataset(chainer.dataset.DatasetMixin):
         self.train = True
         self.pairs = pairs
         self.model_name = model_name
-        #self.image_cache = [None] * len(self.base)
 
     def __len__(self):
         return len(self.base)
 
     def get_example(self, i):
-        # if self.train and (self.image_cache[i] is None):
-        #    image, label = self.base[i]
-        #    self.image_cache[i] = (transforms.resize(image, (368, 368)), label)
-        # else:
-        #    image, label = self.image_cache[i]
         image, label = self.base[i]
         imgpath = self.base._pairs[i][0]
-        image = image.copy()
-
+        image = image.copy().astype(np.float32)
         if self.train:
             image = transforms.resize(image,
                                       (random.choice(range(368, 512)), random.choice(range(368, 512))))
@@ -80,6 +74,8 @@ class FoodDataset(chainer.dataset.DatasetMixin):
             image /= 128.
         elif self.model_name == "vgg16":
             image = vgg.prepare(image, size=(224, 224))
+        elif self.model_name == "resnet50":
+            image = resnet.prepare(image, size=(224, 224))
         else:
             raise Exception("illegal model")
         if image.shape[0] == 1:
@@ -106,4 +102,5 @@ class FoodDataset(chainer.dataset.DatasetMixin):
                 new_image[1] = plane
                 new_image[2] = plane
                 image = new_image
+
         return image, label
