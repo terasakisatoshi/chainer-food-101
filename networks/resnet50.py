@@ -9,18 +9,20 @@ class ResNet50(chainer.Chain):
         super(ResNet50, self).__init__()
         with self.init_scope():
             self.base = L.ResNet50Layers()
-            self.fc_last = L.Linear(None, num_classes)
+            self.fc_1 = L.Linear(None, 1024)
+            self.fc_2 = L.Linear(1024, num_classes)
 
     def __call__(self, x):
         h = self.base(x, layers=["pool5"])["pool5"]
-        h = self.fc_last(h)
+        h = F.dropout(F.relu(self.fc_1(h)))
+        h = self.fc_2(h)
         return h
 
     def disable_target_layers(self):
         disables = ['conv1',
                     'res2',
                     'res3',
-                    #'res4',
+                    'res4',
                     #'res5',
                     ]
 
