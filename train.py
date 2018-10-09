@@ -1,6 +1,9 @@
 import argparse
+import json
 import logging
 import random
+import os
+
 
 import matplotlib
 matplotlib.use('Agg')  # to prevent software hang
@@ -20,30 +23,61 @@ from chainer.training import extensions
 from chainer.training.triggers import MinValueTrigger
 
 from dataset import FoodDataset
-from network import MobilenetV2
+from networks.mobilenetv2 import MobilenetV2
+from networks.vgg16 import VGG16
+from networks.resnet50 import ResNet50
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def save_args(args):
+    if not os.path.exists(args.destination):
+        os.mkdir(args.destination)
+
+    for k, v in vars(args).items():
+        print(k, v)
+
+    with open(os.path.join(args.destination, "args.json"), 'w') as f:
+        json.dump(vars(args), f)
+
+
 def train(args=None):
-    dataset = FoodDataset(train=True)
+    save_args(args)
+
+    dataset = FoodDataset(dataset_dir=args.dataset,
+                          model_name=args.model_name,
+                          train=True)
     train_dataset, valid_dataset = split_dataset_random(
         dataset, int(0.9 * len(dataset)), seed=args.seed)
     train_iter = MultiprocessIterator(
         train_dataset, args.batch_size)
     val_iter = MultiprocessIterator(
         valid_dataset, args.batch_size, repeat=False, shuffle=False)
-
-    model = MobilenetV2(num_classes=101, depth_multiplier=1.0)
+    if args.model_name == 'mv2':
+        model = MobilenetV2(num_classes=101, depth_multiplier=1.0)
+    elif args.model_name == "vgg16":
+        model = VGG16(num_classes=101)
+    elif args.model_name == "resnet50":
+        model = ResNet50(num_classes=101)
+    else:
+        raise Exceptiopn("illegal model name")
     model = L.Classifier(model)
+    if args.model_name == "mv2":
+        optimizer = chainer.optimizers.SGD(lr=0.005)
+    else:
+        optimizer = chainer.optimizers.Adam()
+    optimizer.setup(model)
+
+    if args.model_name == "vgg16":
+        model.predictor.disable_target_layers()
+    if args.model_name == "resnet50":
+        model.predictor.disable_target_layers()
+
     if args.device >= 0:
         chainer.backends.cuda.get_device_from_id(args.device).use()
         model.to_gpu()
 
-    optimizer = chainer.optimizers.SGD()
-    optimizer.setup(model)
-    
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, device=args.device)
     trainer = training.Trainer(
@@ -81,7 +115,9 @@ def set_random_seed(seed):
 def parse_argument():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=12345)
+    parser.add_argument("--dataset", type=str, default="food-101")
     parser.add_argument("--device", type=int, default=0)
+    parser.add_argument("--model_name", type=str, default="mv2")
     parser.add_argument("--multiplier", type=float, default=1.0)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--destination", type=str, default="logs")
