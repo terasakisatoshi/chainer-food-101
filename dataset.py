@@ -50,7 +50,7 @@ class FoodDataset(chainer.dataset.DatasetMixin):
     def __init__(self, dataset_dir, model_name, train=True):
         pairs = get_pairs(dataset_dir, train=train)
         self.base = LabeledImageDataset(pairs)
-        self.train = True
+        self.train = train
         self.pairs = pairs
         self.model_name = model_name
 

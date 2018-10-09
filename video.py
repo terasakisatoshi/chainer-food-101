@@ -8,24 +8,17 @@ import chainer.functions as F
 import cv2
 import numpy as np
 
-from network import MobilenetV2
+from networks.mobilenetv2 import MobilenetV2
+from networks.vgg16 import VGG16
+from networks.resnet50 import ResNet50
+from predict import prepare_setting
 
 
 def video(args):
-    classes = np.genfromtxt(os.path.join(
-        "food-101", "meta", "classes.txt"), str, delimiter="\n")
-    multiplier = 1.0
-    input_size = 224
-    model = MobilenetV2(num_classes=101, depth_multiplier=multiplier)
-    model = L.Classifier(model)
-    chainer.serializers.load_npz(args.model_path, model)
-
-    if args.device >= 0:
-        chainer.cuda.get_device_from_id(0).use()
-        model.predictor.to_gpu()
-        import cupy as xp
-    else:
-        xp = np
+    classes = np.genfromtxt(os.path.join(args.dataset, "meta", "labels.txt"),
+                            str,
+                            delimiter="\n")
+    model, xp, _ = prepare_setting(args)
 
     cap = cv2.VideoCapture(0)
     if cap.isOpened() is False:
@@ -36,7 +29,7 @@ def video(args):
             ret_val, img = cap.read()
             img = cv2.resize(img, (224, 224))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            input_image = cv2.resize(img, (input_size, input_size))
+            input_image = cv2.resize(img, (224, 224))
             input_image = input_image.transpose(2, 0, 1).astype(np.float32)
             start = time.time()
             h = model.predictor(xp.expand_dims(xp.array(input_image), axis=0))
@@ -60,8 +53,7 @@ def video(args):
                     (10, 20 * (rank + 2)),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             cv2.putText(blank, "FPS: %f" % (1.0 / (time.time() - fps_time)),
                         (10, 10),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            title = "_".join(
-                ["MobileNetV2", str(multiplier), str(input_size)])
+            title = "Food-101"
             cv2.imshow(title, cv2.hconcat([img, blank]))
             fps_time = time.time()
             """Hit esc key"""
@@ -73,6 +65,7 @@ def parse_argument():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "model_path", type=str, help="path/to/snapshot e.g. pretrained/model_epoch_100.npz")
+    parser.add_argument("dataset", type=str, help="path/to/food-101")
     parser.add_argument("--device", type=int, default=-1,
                         help="specify GPU_ID. If negative, use CPU (default: % (default)s)")
     args = parser.parse_args()
