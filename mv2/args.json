@@ -1,0 +1,1 @@
+{"dataset": "/home/terasaki/dataset/food-101", "multiplier": 1.0, "seed": 12345, "epoch": 100, "model_name": "mv2", "resume": "logs/snapshot_epoch_62.npz", "batch_size": 32, "device": 1, "destination": "logs"}

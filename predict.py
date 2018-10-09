@@ -1,5 +1,7 @@
 import argparse
+from glob import glob
 import os
+import json
 import random
 
 import chainer
@@ -9,22 +11,45 @@ import numpy as np
 
 from networks.mobilenetv2 import MobilenetV2
 from networks.vgg16 import VGG16
+from networks.resnet50 import ResNet50
 from dataset import FoodDataset
 
 
-def predict(args):
-    classes = np.genfromtxt(os.path.join(args.dataset,
-                                         "meta", "labels.txt"), str, delimiter="\n")
-    test_dataset = FoodDataset(
-        args.dataset, model_name=args.model_name, train=False)
-    if args.model_name == "mv2":
+def find_latest(model_dir):
+    files = glob(os.path.join(model_dir, "model_epoch_*.npz"))
+    numbers = []
+    for f in files:
+        base = os.path.basename(f)
+        base = base[len("model_epoch_"):]
+        base = base[:-len(".npz")]
+        e = int(base)
+        numbers.append(e)
+    e = max(numbers)
+    return os.path.join(model_dir, "model_epoch_{}.npz".format(e))
+
+
+def prepare_setting(args):
+    model_path = find_latest(args.model_path)
+    print(model_path)
+    jsonpath = os.path.join(os.path.dirname(model_path), "args.json")
+    print(jsonpath)
+    with open(jsonpath, 'r') as f:
+        train_args = json.load(f)
+
+    model_cand = {"mv2": MobilenetV2,
+                  "vgg16": VGG16,
+                  "resnet50": ResNet50}
+    if train_args["model_name"] == "mv2":
         model = MobilenetV2(num_classes=101, depth_multiplier=1.0)
-    elif args.model_name == "vgg16":
-        model = VGG16(num_classes=101)
     else:
-        raise Exception("Invalid model")
+        model = model_cand[train_args["model_name"]](num_classes=101)
+
     model = L.Classifier(model)
-    #chainer.serializers.load_npz(args.model_path, model)
+    chainer.serializers.load_npz(model_path, model)
+
+    test_dataset = FoodDataset(args.dataset,
+                               model_name=train_args["model_name"],
+                               train=False)
 
     if args.device >= 0:
         # use GPU
@@ -34,6 +59,14 @@ def predict(args):
     else:
         # use CPU
         xp = np
+    return model, xp, test_dataset
+
+
+def predict(args):
+    classes = np.genfromtxt(os.path.join(args.dataset, "meta", "labels.txt"),
+                            str,
+                            delimiter="\n")
+    model, xp, test_dataset = prepare_setting(args)
 
     top_1_counter = 0
     top_5_counter = 0
@@ -41,7 +74,7 @@ def predict(args):
     indices = list(range(len(test_dataset)))
     num_iteration = len(indices) if args.sample < 0 else args.sample
     random.shuffle(indices)
-    with chainer.using_config('train', False):
+    with chainer.function.no_backprop_mode(), chainer.using_config('train', False):
         for i in indices[:num_iteration]:
             img, label = test_dataset.get_example(i)
             h = model.predictor(xp.expand_dims(xp.array(img), axis=0))
@@ -80,7 +113,6 @@ def parse_argument():
                         help="select num of --sample from test dataset to evaluate accuracy")
     parser.add_argument("--device", type=int, default=0,
                         help="specify GPU_ID. If negative, use CPU")
-    parser.add_argument("--model_name", type=str, default="mv2")
     parser.add_argument("--dataset", type=str, default=".")
     args = parser.parse_args()
     return args
