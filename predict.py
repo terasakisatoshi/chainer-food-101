@@ -12,7 +12,10 @@ import numpy as np
 from networks.mobilenetv2 import MobilenetV2
 from networks.vgg16 import VGG16
 from networks.resnet50 import ResNet50
-from dataset import FoodDataset
+from dataset import FoodDataset, preprocess
+
+from chainer.links.model.vision import vgg
+from chainer.links.model.vision import resnet
 
 
 def find_latest(model_dir):
@@ -59,14 +62,17 @@ def prepare_setting(args):
     else:
         # use CPU
         xp = np
-    return model, xp, test_dataset
+
+    preprocess_ = lambda image: preprocess(image, train_args["model_name"])
+
+    return model, preprocess_, xp, test_dataset,
 
 
 def predict(args):
-    classes = np.genfromtxt(os.path.join(args.dataset, "meta", "labels.txt"),
+    classes = np.genfromtxt(os.path.join(args.dataset, "meta", "classes.txt"),
                             str,
                             delimiter="\n")
-    model, xp, test_dataset = prepare_setting(args)
+    model, preprocess, xp, test_dataset = prepare_setting(args)
 
     top_1_counter = 0
     top_5_counter = 0

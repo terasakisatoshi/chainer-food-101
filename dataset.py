@@ -3,6 +3,7 @@ import logging
 import os
 import random
 
+from PIL import Image
 import chainer
 from chainer.datasets import LabeledImageDataset
 from chainer.datasets import TransformDataset
@@ -23,6 +24,28 @@ logger = logging.getLogger(__name__)
 BLACKLIST = ["lasagna/3787908",
              "steak/1340977",
              "bread_pudding/1375816"]
+
+
+DEG_RANGE = np.linspace(-20, 20, 100)
+
+
+def rotate_image(image):
+    pilimg = Image.fromarray(image.transpose(1, 2, 0).astype(np.uint8))
+    pilimg = pilimg.rotate(np.random.choice(DEG_RANGE))
+    return np.asarray(pilimg).transpose(2, 0, 1)
+
+
+def preprocess(image, model_name):
+    if model_name == "mv2":
+        image /= 128.
+        image = transforms.resize(image, (224, 224))
+    elif model_name == "vgg16":
+        image = vgg.prepare(image, size=(224, 224))
+    elif model_name == "resnet50":
+        image = resnet.prepare(image, size=(224, 224))
+    else:
+        raise Exception("illegal model")
+    return image
 
 
 def get_pairs(dataset_dir, train=True):
@@ -62,22 +85,15 @@ class FoodDataset(chainer.dataset.DatasetMixin):
         imgpath = self.base._pairs[i][0]
         image = image.copy().astype(np.float32)
         if self.train:
+            iamge = rotate_image(image)
             image = transforms.resize(image,
                                       (random.choice(range(368, 512)), random.choice(range(368, 512))))
             image = transforms.pca_lighting(image, 76.5)
             image = transforms.random_flip(image, x_random=True, y_random=True)
-            image = transforms.random_rotate(image, return_param=False)
             if image.shape[1] >= 224 and image.shape[2] >= 224:
                 image = transforms.random_crop(image, size=(224, 224))
         image = transforms.resize(image, (224, 224))
-        if self.model_name == "mv2":
-            image /= 128.
-        elif self.model_name == "vgg16":
-            image = vgg.prepare(image, size=(224, 224))
-        elif self.model_name == "resnet50":
-            image = resnet.prepare(image, size=(224, 224))
-        else:
-            raise Exception("illegal model")
+        image = preprocess(image, self.model_name)
         if image.shape[0] == 1:
             """
             REMARK: all images are not color images.

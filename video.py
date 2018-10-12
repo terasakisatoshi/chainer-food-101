@@ -15,10 +15,10 @@ from predict import prepare_setting
 
 
 def video(args):
-    classes = np.genfromtxt(os.path.join(args.dataset, "meta", "labels.txt"),
+    classes = np.genfromtxt(os.path.join(args.dataset, "meta", "classes.txt"),
                             str,
                             delimiter="\n")
-    model, xp, _ = prepare_setting(args)
+    model, preprocess, xp, _ = prepare_setting(args)
 
     cap = cv2.VideoCapture(0)
     if cap.isOpened() is False:
@@ -30,7 +30,8 @@ def video(args):
             img = cv2.resize(img, (224, 224))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             input_image = cv2.resize(img, (224, 224))
-            input_image = input_image.transpose(2, 0, 1).astype(np.float32)
+            input_image = input_image.transpose(2, 0, 1)
+            input_image = preprocess(input_image).astype(np.float32)
             start = time.time()
             h = model.predictor(xp.expand_dims(xp.array(input_image), axis=0))
             prediction = F.softmax(h)
@@ -67,7 +68,7 @@ def parse_argument():
         "model_path", type=str, help="path/to/snapshot e.g. pretrained/model_epoch_100.npz")
     parser.add_argument("dataset", type=str, help="path/to/food-101")
     parser.add_argument("--device", type=int, default=-1,
-                        help="specify GPU_ID. If negative, use CPU (default: % (default)s)")
+                        help="specify GPU_ID. If negative, use CPU")
     args = parser.parse_args()
     return args
 
