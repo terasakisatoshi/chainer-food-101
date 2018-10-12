@@ -1,1 +1,1 @@
-{"seed": 12345, "dataset": "/home/terasaki/dataSSD120GB/food-101/", "device": 0, "model_name": "resnet50", "multiplier": 1.0, "batch_size": 32, "destination": "resnet50", "resume": "", "epoch": 100}
+{"epoch": 100, "model_name": "resnet50", "multiplier": 1.0, "destination": "resnet50_rot-20+20", "device": 0, "dataset": "/home/terasaki/dataset/food-101", "resume": "", "batch_size": 32, "seed": 12345}
