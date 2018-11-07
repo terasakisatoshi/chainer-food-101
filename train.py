@@ -114,15 +114,15 @@ def set_random_seed(seed):
 
 def parse_argument():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--seed", type=int, default=12345)
-    parser.add_argument("--dataset", type=str, default="food-101")
-    parser.add_argument("--device", type=int, default=0)
-    parser.add_argument("--model_name", type=str, default="mv2")
-    parser.add_argument("--multiplier", type=float, default=1.0)
-    parser.add_argument("--batch-size", type=int, default=32)
-    parser.add_argument("--destination", type=str, default="logs")
-    parser.add_argument("--resume", type=str, default="")
-    parser.add_argument("--epoch", type=int, default=100)
+    parser.add_argument("--seed", type=int, default=12345, help='seed for numpy cupy random module %(default)s')
+    parser.add_argument("--dataset", type=str, default="food-101", help='path/to/food-101 default = %(default)s')
+    parser.add_argument("--device", type=int, default=0, help='%(default)s')
+    parser.add_argument("--model_name", type=str, default="mv2", help='model arch for training mv2, resnet50 or vgg16 default = %(default)s')
+    parser.add_argument("--multiplier", type=float, default=1.0, help='%(default)s')
+    parser.add_argument("--batch-size", type=int, default=32, help='%(default)s')
+    parser.add_argument("--destination", type=str, default="trained", help='%(default)s')
+    parser.add_argument("--resume", type=str, default="", help="default is empty string '' ")
+    parser.add_argument("--epoch", type=int, default=100, help='num epoch for training %(default)s')
     args = parser.parse_args()
     return args
 
