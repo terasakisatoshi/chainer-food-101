@@ -128,16 +128,16 @@ $ tree -d
 
 ## Prepare Python Modules
 - Python(3.6.5 Miniconda)
-- NumPy(1.14.5)
-- Matplotlib(2.2.3)
-- Chainer(4.4.0)
-- ChainerCV(0.10.0)
-- OpenCV(3.4.2)
+- NumPy(1.14.5) (import numpy as np)
+- Matplotlib(2.2.3) (from matplotlib import pyplot as plt)
+- Chainer(4.4.0) (import chainer)
+- ChainerCV(0.10.0) (import chainercv)
+- OpenCV(3.4.2) (import cv2)
 
 ## Getting Started
 
 ```console
-python train.py --device 0 --epoch 100 --destination logs
+python train.py --device 0 --epoch 100 --destination trained
 ```
 
 It takes 24 hours to train on my machine:
@@ -173,20 +173,45 @@ After training, you can check accuracy top_1 and top_5.
 Run this script.
 
 ```console
-$ python predict.py logs/model_epoch_100.npz --device 0
+$ python predict.py trained/model_epoch_100.npz --device 0
 ```
 
 If you want to compare pretrained model, run this script.
 
 ```console
-$ python predict pretrained/model_epoch_100.npz --device 0
+python predict.py -h
+usage: predict.py [-h] [--sample SAMPLE] [--device DEVICE] [--dataset DATASET]
+                  model_path
+
+positional arguments:
+  model_path         path/to/snapshot e.g. pretrained/model_epoch_100.npz
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --sample SAMPLE    select num of --sample from test dataset to evaluate
+                     accuracy
+  --device DEVICE    specify GPU_ID. If negative, use CPU
+  --dataset DATASET
+```
+
+for example
+
+```console
+$ python predict.py ./mv2 --dataset path/to/food-101 --device 0
 ```
 
 This should be get:
 
 ```
-top1 accuracy 0.6154455445544554
-top5 accuracy 0.844039603960396
+#./mv2
+top1 accuracy 0.6074059405940594
+top5 accuracy 0.8492673267326732
+```
+
+```
+./resnet50
+top1 accuracy 0.6994851485148514
+top5 accuracy 0.8940594059405941
 ```
 
 # Using Web Camera
@@ -194,7 +219,7 @@ top5 accuracy 0.844039603960396
 Wanna try demo ? You can use video.py:
 
 ```
-python video.py logs/model_epoch_100.npz
+python video.py ./mv2 path/to/food-101
 ```
 
 Enjoy!
