@@ -2,6 +2,13 @@
 
 Classify category of food with Chainer based on MobileNetV2
 
+# What's NEW
+
+- update README.md
+- some bugfix
+- add new model ResNet50
+- add pretrained model based on ResNet50 and MobileNetV2
+
 # How to Train
 ## Prepare Dataset
 
