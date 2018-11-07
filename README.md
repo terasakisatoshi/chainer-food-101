@@ -216,7 +216,7 @@ top5 accuracy 0.8492673267326732
 ```
 
 ```
-./resnet50
+#./resnet50
 top1 accuracy 0.6994851485148514
 top5 accuracy 0.8940594059405941
 ```
