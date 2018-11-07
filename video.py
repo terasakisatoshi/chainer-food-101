@@ -31,7 +31,7 @@ def video(args):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             input_image = cv2.resize(img, (224, 224))
             input_image = input_image.transpose(2, 0, 1)
-            input_image = preprocess(input_image).astype(np.float32)
+            input_image = preprocess(input_image.astype(np.float32))
             start = time.time()
             h = model.predictor(xp.expand_dims(xp.array(input_image), axis=0))
             prediction = F.softmax(h)
@@ -51,9 +51,9 @@ def video(args):
                     rank + 1, score * 100, label))
                 cv2.putText(blank, '{:>3d} {:>6.2f}% {}'.format(
                     rank + 1, prediction[label_idx] * 100, classes[label_idx]),
-                    (10, 20 * (rank + 2)),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    (10, 20 * (rank + 2)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             cv2.putText(blank, "FPS: %f" % (1.0 / (time.time() - fps_time)),
-                        (10, 10),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                        (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             title = "Food-101"
             cv2.imshow(title, cv2.hconcat([img, blank]))
             fps_time = time.time()
