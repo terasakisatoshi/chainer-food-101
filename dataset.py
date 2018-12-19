@@ -85,7 +85,7 @@ class FoodDataset(chainer.dataset.DatasetMixin):
         imgpath = self.base._pairs[i][0]
         image = image.copy().astype(np.float32)
         if self.train:
-            iamge = rotate_image(image)
+            image = rotate_image(image)
             image = transforms.resize(image,
                                       (random.choice(range(368, 512)), random.choice(range(368, 512))))
             image = transforms.pca_lighting(image, 76.5)
