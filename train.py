@@ -61,7 +61,7 @@ def train(args=None):
     elif args.model_name == "resnet50":
         model = ResNet50(num_classes=101)
     else:
-        raise Exceptiopn("illegal model name")
+        raise Exception("illegal model name")
     model = L.Classifier(model)
     if args.model_name == "mv2":
         optimizer = chainer.optimizers.SGD(lr=0.005)
@@ -131,5 +131,7 @@ def main():
     args = parse_argument()
     set_random_seed(args.seed)
     train(args)
+
+
 if __name__ == '__main__':
     main()
