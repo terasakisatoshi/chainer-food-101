@@ -2,6 +2,13 @@
 
 Classify category of food with Chainer based on MobileNetV2
 
+# DEPRECATION WARNING
+
+This repository is deprecated. Please go to revised version that resolve some bugs:
+
+[chainer-food-101-revised](https://github.com/terasakisatoshi/chainer-food-101-revised)
+
+
 # What's NEW
 
 - update README.md
